@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scan Report - {{ domain }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container mt-5">
+    <div class="card shadow p-4">
+      <h2>Security Report for <span class="text-primary">{{ domain }}</span></h2>
+
+      <h4 class="mt-4">Security Headers</h4>
+      <ul class="list-group">
+        {% for header, data in headers.items() %}
+          <li class="list-group-item">
+            {% if data.present %}
+              ✅ <b>{{ header }}</b> present ({{ data.value }}) — {{ data.description }}
+            {% else %}
+              ❌ <b>{{ header }}</b> missing — {{ data.description }}
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+
+      <h4 class="mt-4">SSL Certificate</h4>
+      <div class="alert alert-info">
+        {% if ssl_info.error %}
+          ❌ SSL Error: {{ ssl_info.error }}
+        {% else %}
+          <p><b>Issuer:</b> {{ ssl_info.issuer }}</p>
+          <p><b>Subject:</b> {{ ssl_info.subject }}</p>
+          <p><b>Expiry:</b> {{ ssl_info.notAfter }} ({{ ssl_info.days_left }} days left)</p>
+          {% if ssl_info.days_left < 30 %}
+            <p class="text-danger">⚠️ Certificate expiring soon!</p>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <h4 class="mt-4">Open Ports</h4>
+      <ul class="list-group">
+        {% if ports is string %}
+          <li class="list-group-item">{{ ports }}</li>
+        {% else %}
+          {% for p in ports %}
+            <li class="list-group-item">🔓 {{ p }}</li>
+          {% endfor %}
+        {% endif %}
+      </ul>
+
+      <h4 class="mt-4">CMS Detection</h4>
+      <p><b>Detected CMS:</b> {{ cms }}</p>
+
+      <a href="/" class="btn btn-secondary mt-3">🔄 Scan Another</a>
+    </div>
+  </div>
+</body>
+</html>
